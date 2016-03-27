@@ -490,51 +490,47 @@ Automate * creer_union_des_automates(
 
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
 
-  if(! est_un_etat_de_l_automate(automate, etat) ){//Si l'état n'existe pas
-     return NULL;
-  }
-  else{
+	if(! est_un_etat_de_l_automate(automate, etat) )//Si l'état n'existe pas
+		return NULL;
     
-    const Ensemble* alphabet = get_alphabet(automate);
-    Ensemble* res = creer_ensemble(NULL, NULL, NULL);
-    ajouter_element(res, etat);
-    Ensemble_iterateur itRes;
-    Ensemble_iterateur itAlph;
+	const Ensemble* alphabet = get_alphabet(automate);
+	Ensemble* res = creer_ensemble(NULL, NULL, NULL);
+	ajouter_element(res, etat);
+	Ensemble_iterateur itRes;
+	Ensemble_iterateur itAlph;
 
-    itRes = premier_iterateur_ensemble( res );
-    while(! iterateur_ensemble_est_vide( itRes )){
+	itRes = premier_iterateur_ensemble( res );
+	while(! iterateur_ensemble_est_vide( itRes )){
+		for(itAlph = premier_iterateur_ensemble( alphabet );
+			! iterateur_ensemble_est_vide( itAlph );
+			itAlph = iterateur_suivant_ensemble( itAlph ))
+		{
+			Ensemble * ens= delta1(automate, get_element(itRes), get_element(itAlph));
+			ajouter_elements(res, ens);
+			liberer_ensemble(ens);
+		}
 
-
-      for(itAlph = premier_iterateur_ensemble( alphabet );
-	  ! iterateur_ensemble_est_vide( itAlph );
-	  itAlph = iterateur_suivant_ensemble( itAlph ))
-	{
-	  ajouter_elements(res, delta1(automate, get_element(itRes), get_element(itAlph)));
+		itRes = iterateur_suivant_ensemble( itRes );
 	}
 
-      itRes = iterateur_suivant_ensemble( itRes );
-    }
-
-    return res;         
-  }
+    return res;
 }
 
 Ensemble* accessibles( const Automate * automate ){
 
- Ensemble* res = creer_ensemble( NULL, NULL, NULL );
- 
- const Ensemble* initiaux = get_initiaux(automate);
+	Ensemble* res = creer_ensemble( NULL, NULL, NULL );
+	Ensemble_iterateur it;
 
- Ensemble_iterateur it;
+	for(it = premier_iterateur_ensemble( get_initiaux(automate) );
+		! iterateur_ensemble_est_vide( it );
+		it  = iterateur_suivant_ensemble( it ))
+	{
+		Ensemble * ens = etats_accessibles( automate, get_element(it) );
+		ajouter_elements( res, ens );
+		liberer_ensemble( ens );
+	}
 
- for(it = premier_iterateur_ensemble( initiaux );
-     ! iterateur_ensemble_est_vide( it );
-     it  = iterateur_suivant_ensemble( it ))
-   {
-     ajouter_elements(res, etats_accessibles(automate, get_element(it)));
-   }
-
-  return res;  
+	return res;  
 }
 
 Automate *automate_accessible( const Automate * automate ){
