@@ -481,10 +481,59 @@ Automate * mot_to_automate( const char * mot ){
 	return automate;
 }
 
+//Ajoute une simple transition (origine,lettre)->fin
+//Cette fonction peut être passée en paramètre à "pour_toute_transition(...)"
+void ajouter_transition_pour_toute( int origine, char lettre, int fin, void* data ){
+  ajouter_transition(data, origine, lettre, fin);
+}
+	
+//Copie chaque transition partant d'un état initial de l'Automate a
+//En la faisant partir de l'unique état initial
+void union_nouvelles_transitions_depuis_initial(Automate *res, const Automate *a){
+	Ensemble_iterateur it_alpha, it;
+	
+	//Parcours de l'alphabet
+	for(it_alpha = premier_iterateur_ensemble( a->alphabet );
+		! iterateur_ensemble_est_vide( it_alpha );
+		it_alpha = iterateur_suivant_ensemble( it_alpha )
+	){
+		Ensemble * initiaux_alpha= delta(a, get_initiaux(a), get_element(it_alpha));
+		//Parcours des états initiaux
+		for(it = premier_iterateur_ensemble( initiaux_alpha );
+			! iterateur_ensemble_est_vide( it );
+			it = iterateur_suivant_ensemble( it )
+		){
+			ajouter_transition(res, INT_MIN, get_element(it_alpha), get_element(it));
+		}
+		
+		liberer_ensemble(initiaux_alpha);
+	}
+}
+
 Automate * creer_union_des_automates(
 	const Automate * automate_1, const Automate * automate_2
-				     ){
-	A_FAIRE_RETURN( NULL );
+){
+	//Incorporation du premier automate
+	Automate *res= copier_automate(automate_1);
+	vider_ensemble(res->initiaux);
+	
+	//Incorporation du second automate
+	Automate *a2= translater_automate(automate_2, automate_1); //Copie de automate_2
+	ajouter_elements(res->alphabet, a2->alphabet);
+	ajouter_elements(res->etats, a2->etats);
+	ajouter_elements(res->finaux, a2->finaux);
+  	pour_toute_transition(a2, ajouter_transition_pour_toute, res);
+
+	//Création de l'unique état initial
+	ajouter_etat(res, INT_MIN);
+	ajouter_etat_initial(res, INT_MIN);
+	
+	//Ajout des transitions partant de l'unique état initial
+	union_nouvelles_transitions_depuis_initial(res, automate_1);
+	union_nouvelles_transitions_depuis_initial(res, a2);
+	
+	liberer_automate(a2);
+	return res;
 }
 
 

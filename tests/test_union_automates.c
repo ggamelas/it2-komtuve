@@ -28,7 +28,7 @@ void wrap_liberer_automate( Automate * aut ){
 	}
 }
 
-int test_automate_du_unionge(){
+int test_automate_du_union(){
 
 	int result = 1;
 
@@ -92,13 +92,13 @@ int test_automate_du_unionge(){
 			&& le_mot_est_reconnu( unio, "b" )
 
 			&& ! le_mot_est_reconnu( unio, "aa" )
-			&& ! le_mot_est_reconnu( unio, "ab" )
+			&& le_mot_est_reconnu( unio, "ab" )
 			&& le_mot_est_reconnu( unio, "ba" )
 			&& ! le_mot_est_reconnu( unio, "bb" )
 
 			&& ! le_mot_est_reconnu( unio, "aaa" )
-			&& ! le_mot_est_reconnu( unio, "aab" )
-			&& ! le_mot_est_reconnu( unio, "aba" )
+			&& le_mot_est_reconnu( unio, "aab" )
+			&& le_mot_est_reconnu( unio, "aba" )
 			&& le_mot_est_reconnu( unio, "abb" )
 			&& le_mot_est_reconnu( unio, "baa" )
 			&& ! le_mot_est_reconnu( unio, "bab" )
@@ -106,13 +106,13 @@ int test_automate_du_unionge(){
 			&& le_mot_est_reconnu( unio, "bbb" )
 
 			&& ! le_mot_est_reconnu( unio, "aaaa" )
-			&& ! le_mot_est_reconnu( unio, "aaab" )
-			&& ! le_mot_est_reconnu( unio, "aaba" )
+			&& le_mot_est_reconnu( unio, "aaab" )
+			&& le_mot_est_reconnu( unio, "aaba" )
 			&& ! le_mot_est_reconnu( unio, "aabb" )
-			&& ! le_mot_est_reconnu( unio, "abaa" )
+			&& le_mot_est_reconnu( unio, "abaa" )
 			&& le_mot_est_reconnu( unio, "abab" )
 			&& ! le_mot_est_reconnu( unio, "abba" )
-			&& ! le_mot_est_reconnu( unio, "abbb" )
+			&& le_mot_est_reconnu( unio, "abbb" )
 			&& le_mot_est_reconnu( unio, "baaa" )
 			&& ! le_mot_est_reconnu( unio, "baab" )
 			&& ! le_mot_est_reconnu( unio, "baba" )
@@ -127,6 +127,97 @@ int test_automate_du_unionge(){
 		wrap_liberer_automate( aut2 );
 		wrap_liberer_automate( unio );
 	}
+	
+	{
+		Automate * aut1 = creer_automate();
+
+		ajouter_transition( aut1, 0, 'a', 1 );
+		ajouter_transition( aut1, 1, 'b', 2 );
+		ajouter_transition( aut1, 2, 'a', 2 );
+		ajouter_transition( aut1, 2, 'b', 1 );
+		ajouter_etat_initial( aut1, 0 );
+		ajouter_etat_final( aut1, 1 );
+		
+
+		Automate * aut2 = creer_automate();
+
+		ajouter_transition( aut2, 0, 'c', 1 );
+		ajouter_transition( aut2, 1, 'd', 1 );
+		ajouter_transition( aut2, 0, 'd', 0 );
+		ajouter_transition( aut2, 1, 'e', 0 );
+		ajouter_etat_initial( aut2, 0 );
+		ajouter_etat_final( aut2, 1 );
+
+		Automate * unio = creer_union_des_automates( aut1, aut2 );
+
+		TEST(
+			1
+			&& unio
+			&& ! le_mot_est_reconnu( unio, "" )
+			&& le_mot_est_reconnu( unio, "a" )
+			&& ! le_mot_est_reconnu( unio, "b" )
+			&& le_mot_est_reconnu( unio, "c" )
+			&& ! le_mot_est_reconnu( unio, "d" )
+			&& ! le_mot_est_reconnu( unio, "e" )
+			
+			&& ! le_mot_est_reconnu( unio, "aa" )
+			&& ! le_mot_est_reconnu( unio, "ab" )
+			&& ! le_mot_est_reconnu( unio, "ac" )
+			&& ! le_mot_est_reconnu( unio, "ad" )
+			&& ! le_mot_est_reconnu( unio, "ae" )
+			&& ! le_mot_est_reconnu( unio, "ba" )
+			&& ! le_mot_est_reconnu( unio, "bb" )
+			&& ! le_mot_est_reconnu( unio, "bc" )
+			&& ! le_mot_est_reconnu( unio, "bd" )
+			&& ! le_mot_est_reconnu( unio, "be" )
+			&& ! le_mot_est_reconnu( unio, "ca" )
+			&& ! le_mot_est_reconnu( unio, "cb" )
+			&& ! le_mot_est_reconnu( unio, "cc" )
+			&& le_mot_est_reconnu( unio, "cd" )
+			&& ! le_mot_est_reconnu( unio, "ce" )
+			&& ! le_mot_est_reconnu( unio, "da" )
+			&& ! le_mot_est_reconnu( unio, "db" )
+			&& le_mot_est_reconnu( unio, "dc" )
+			&& ! le_mot_est_reconnu( unio, "dd" )
+			&& ! le_mot_est_reconnu( unio, "de" )
+			&& ! le_mot_est_reconnu( unio, "ea" )
+			&& ! le_mot_est_reconnu( unio, "eb" )
+			&& ! le_mot_est_reconnu( unio, "ec" )
+			&& ! le_mot_est_reconnu( unio, "ed" )
+			&& ! le_mot_est_reconnu( unio, "ee" )
+
+			&& ! le_mot_est_reconnu( unio, "aaa" )
+			&& ! le_mot_est_reconnu( unio, "aab" )
+			&& ! le_mot_est_reconnu( unio, "aba" )
+			&& le_mot_est_reconnu( unio, "abb" )
+			&& ! le_mot_est_reconnu( unio, "cdc" )
+			&& le_mot_est_reconnu( unio, "cdd" )
+			&& ! le_mot_est_reconnu( unio, "cde" )
+			&& le_mot_est_reconnu( unio, "cec" )
+			&& ! le_mot_est_reconnu( unio, "ced" )
+			&& ! le_mot_est_reconnu( unio, "cee" )
+			&& ! le_mot_est_reconnu( unio, "dcc" )
+			&& le_mot_est_reconnu( unio, "dcd" )
+			&& ! le_mot_est_reconnu( unio, "dce" )
+			&& le_mot_est_reconnu( unio, "ddc" )
+			&& ! le_mot_est_reconnu( unio, "ddd" )
+			&& ! le_mot_est_reconnu( unio, "dde" )
+
+			&& ! le_mot_est_reconnu( unio, "aaaa" )
+			&& ! le_mot_est_reconnu( unio, "aaab" )
+			&& ! le_mot_est_reconnu( unio, "aaba" )
+			&& ! le_mot_est_reconnu( unio, "aabb" )
+			&& ! le_mot_est_reconnu( unio, "abaa" )
+			&& le_mot_est_reconnu( unio, "abab" )
+			&& ! le_mot_est_reconnu( unio, "abba" )
+			&& ! le_mot_est_reconnu( unio, "abbb" )
+
+			, result
+		);
+		wrap_liberer_automate( aut1 );
+		wrap_liberer_automate( aut2 );
+		wrap_liberer_automate( unio );
+	}
 
 	return result;
 }
@@ -134,7 +225,7 @@ int test_automate_du_unionge(){
 
 int main(){
 
-	if( ! test_automate_du_unionge() ){ return 1; }
+	if( ! test_automate_du_union() ){ return 1; }
 
 	return 0;
 }
