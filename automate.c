@@ -483,16 +483,51 @@ Automate * mot_to_automate( const char * mot ){
 
 Automate * creer_union_des_automates(
 	const Automate * automate_1, const Automate * automate_2
-){
+				     ){
 	A_FAIRE_RETURN( NULL );
 }
 
+
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
-	A_FAIRE_RETURN( NULL ); 
+
+  if(! est_un_etat_de_l_automate(automate, etat) ){//Si l'état n'existe pas
+     return NULL;
+  }
+  else{
+    
+    const Ensemble* alphabet = get_alphabet(automate);
+    Ensemble* res = creer_ensemble(NULL, NULL, NULL);
+    ajouter_element(res, etat);
+    Ensemble_iterateur itRes;
+    Ensemble_iterateur itAlph;
+
+    itRes = premier_iterateur_ensemble( res );
+    while(! iterateur_ensemble_est_vide( itRes )){
+
+
+      for(itAlph = premier_iterateur_ensemble( alphabet );
+	  ! iterateur_ensemble_est_vide( itAlph );
+	  itAlph = iterateur_suivant_ensemble( itAlph ))
+	{
+	  ajouter_elements(res, delta1(automate, get_element(itRes), get_element(itAlph)));
+	}
+
+      itRes = iterateur_suivant_ensemble( itRes );
+    }
+
+    return res;         
+  }
 }
 
 Ensemble* accessibles( const Automate * automate ){
-	A_FAIRE_RETURN( NULL ); 
+  //TODO
+ Ensemble* res = creer_ensemble( NULL, NULL, NULL );
+ 
+
+
+
+
+  return res;  
 }
 
 Automate *automate_accessible( const Automate * automate ){
