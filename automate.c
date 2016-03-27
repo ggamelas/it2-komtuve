@@ -514,7 +514,7 @@ Ensemble* etats_accessibles( const Automate * automate, int etat ){
 
       itRes = iterateur_suivant_ensemble( itRes );
     }
-
+    liberer_ensemble(alphabet);
     return res;         
   }
 }

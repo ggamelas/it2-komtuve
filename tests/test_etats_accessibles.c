@@ -70,6 +70,7 @@ int test_etats_accessibles(){
 	     );
 
 	liberer_ensemble(ens1);
+	libere_ensemble(ens2);
 	liberer_automate( automate );
 
 	return result;
