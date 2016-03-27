@@ -514,18 +514,25 @@ Ensemble* etats_accessibles( const Automate * automate, int etat ){
 
       itRes = iterateur_suivant_ensemble( itRes );
     }
-    liberer_ensemble(alphabet);
+
     return res;         
   }
 }
 
 Ensemble* accessibles( const Automate * automate ){
-  //TODO
+
  Ensemble* res = creer_ensemble( NULL, NULL, NULL );
  
+ const Ensemble* initiaux = get_initiaux(automate);
 
+ Ensemble_iterateur it;
 
-
+ for(it = premier_iterateur_ensemble( initiaux );
+     ! iterateur_ensemble_est_vide( it );
+     it  = iterateur_suivant_ensemble( it ))
+   {
+     ajouter_elements(res, etats_accessibles(automate, get_element(it)));
+   }
 
   return res;  
 }

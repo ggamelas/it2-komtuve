@@ -23,7 +23,7 @@
 #include "outils.h"
 
 
-int test_etats_accessibles(){
+int test__accessibles(){
 
 	int result = 1;
 
@@ -35,32 +35,28 @@ int test_etats_accessibles(){
 	ajouter_etat( automate, 3);
 	ajouter_etat( automate, 4);
 	
-	ajouter_transition( automate, 0, 'a', 1);
-	ajouter_transition( automate, 0, 'b', 2);
-	ajouter_transition( automate, 1, 'b', 3);
-	ajouter_transition( automate, 2, 'c', 4);
-	ajouter_transition( automate, 3, 'a', 1);
+	ajouter_etat_initial(automate, 0);
+	ajouter_etat_initial(automate, 1);
+
+	ajouter_transition( automate, 0, 'a', 2);
+	ajouter_transition( automate, 1, 'b', 4);
+	ajouter_transition( automate, 2, 'b', 3);
 
 	Ensemble* ens1 = creer_ensemble( NULL, NULL, NULL);
+	ajouter_element(ens1, 0);
 	ajouter_element(ens1, 1);
-	ajouter_element(ens1, 3);//L'etat est considéré comme accessible depuis lui même
-
-	Ensemble* ens2 = creer_ensemble( NULL, NULL, NULL);
-	ajouter_element(ens2, 4);
-	ajouter_element(ens2, 2);//L'etat est considéré comme accessible depuis lui même
+	ajouter_element(ens1, 2);
+	ajouter_element(ens1, 3);
+	ajouter_element(ens1, 4); 
 
 	TEST(
 	     1
 	     && automate
-	     && etats_accessibles( automate, 5 ) == NULL
-	     && comparer_ensemble( etats_accessibles( automate, 3), ens1) == 0 
-      	     && comparer_ensemble( etats_accessibles( automate, 2), ens2) == 0
-	     && comparer_ensemble( etats_accessibles( automate, 1), ens2) != 0
+	     && comparer_ensemble( accessibles( automate), ens1) == 0 
 	     , result
 	     );
 
 	liberer_ensemble(ens1);
-	liberer_ensemble(ens2);
 	liberer_automate( automate );
 
 	return result;
@@ -69,7 +65,7 @@ int test_etats_accessibles(){
 
 int main(){
 
-	if( ! test_etats_accessibles() ){ return 1; }
+	if( ! test__accessibles() ){ return 1; }
 
 	return 0;
 }
