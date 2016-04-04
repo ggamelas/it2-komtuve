@@ -586,8 +586,36 @@ Automate *automate_accessible( const Automate * automate ){
 	A_FAIRE_RETURN( NULL ); 
 }
 
+void ajouter_transistion_inverse( int origine, char lettre, int fin, void* data ){
+  ajouter_transition(data, fin, lettre, origine);
+}
+
 Automate *miroir( const Automate * automate){
-	A_FAIRE_RETURN( NULL ); 
+	Automate * res = creer_automate();
+	Ensemble_iterateur it1;
+	
+	// On ajoute les états initiaux depuis les finaux originaux
+	for(
+		it1 = premier_iterateur_ensemble( get_finaux( automate ) );
+		! iterateur_ensemble_est_vide( it1 );
+		it1 = iterateur_suivant_ensemble( it1 )
+	){
+		ajouter_etat_initial( res, get_element( it1 ) );
+	}
+	
+	// On ajoute les états finaux depuis les initiaux originaux
+	for(
+		it1 = premier_iterateur_ensemble( get_initiaux( automate ) );
+		! iterateur_ensemble_est_vide( it1 );
+		it1 = iterateur_suivant_ensemble( it1 )
+	){
+		ajouter_etat_final( res, get_element( it1 ) );
+	}
+	
+	// On ajoute les transitions inverses, ainsi que les états et les lettres
+	pour_toute_transition(automate, ajouter_transistion_inverse, res);
+  
+	return res; 
 }
 
 Automate * creer_automate_du_melange(
