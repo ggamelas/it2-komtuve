@@ -568,13 +568,13 @@ Ensemble* etats_accessibles( const Automate * automate, int etat ){
 Ensemble* accessibles( const Automate * automate ){
 
 	Ensemble* res = creer_ensemble( NULL, NULL, NULL );
-	Ensemble_iterateur it;
+	Ensemble_iterateur it_ens;
 
-	for(it = premier_iterateur_ensemble( get_initiaux(automate) );
-		! iterateur_ensemble_est_vide( it );
-		it  = iterateur_suivant_ensemble( it ))
+	for(it_ens = premier_iterateur_ensemble( get_initiaux(automate) );
+		! iterateur_ensemble_est_vide( it_ens );
+		it_ens  = iterateur_suivant_ensemble( it_ens ))
 	{
-		Ensemble * ens = etats_accessibles( automate, get_element(it) );
+		Ensemble * ens = etats_accessibles( automate, get_element(it_ens) );
 		ajouter_elements( res, ens );
 		liberer_ensemble( ens );
 	}
@@ -583,7 +583,61 @@ Ensemble* accessibles( const Automate * automate ){
 }
 
 Automate *automate_accessible( const Automate * automate ){
-	A_FAIRE_RETURN( NULL ); 
+	Automate * res = creer_automate();
+	Ensemble_iterateur it_ens;
+	int etat, origine;
+	char lettre;
+	Cle * c;
+	Ensemble * fins;
+
+	Ensemble * access = accessibles( automate );
+
+	// On ajoute les transitions, ainsi que les lettres et états
+	Table_iterateur it_tab;
+	for(
+		it_tab = premier_iterateur_table( automate->transitions );
+		! iterateur_est_vide( it_tab );
+		it_tab = iterateur_suivant_table( it_tab )
+	){
+		c = (Cle*) get_cle( it_tab );
+		origine = c->origine; 
+		lettre = c->lettre;
+		//Si l'origine des transitions est accessible, alors ajout des transitions
+		if( est_dans_l_ensemble( access, origine ) ){ 
+			fins = (Ensemble*) get_valeur( it_tab );
+			for(
+				it_ens = premier_iterateur_ensemble( fins );
+				! iterateur_ensemble_est_vide( it_ens );
+				it_ens = iterateur_suivant_ensemble( it_ens )
+			){
+				ajouter_transition( res, origine, lettre, get_element( it_ens ));
+			}
+		}
+	}
+	
+	// On ajoute les états initiaux (forcément accessibles)
+	for(
+		it_ens = premier_iterateur_ensemble( get_initiaux( automate ) );
+		! iterateur_ensemble_est_vide( it_ens );
+		it_ens = iterateur_suivant_ensemble( it_ens )
+	){
+		ajouter_etat_initial( res, get_element( it_ens ) );
+	}
+	
+	// On ajoute les états finaux
+	for(
+		it_ens = premier_iterateur_ensemble( access );
+		! iterateur_ensemble_est_vide( it_ens );
+		it_ens = iterateur_suivant_ensemble( it_ens )
+	){
+		etat = get_element( it_ens );
+		if( est_un_etat_final_de_l_automate( automate, etat ) ){
+			ajouter_etat_final( res, etat );
+		}
+	}
+	
+	liberer_ensemble( access );
+	return res; 
 }
 
 void ajouter_transistion_inverse( int origine, char lettre, int fin, void* data ){
@@ -592,24 +646,24 @@ void ajouter_transistion_inverse( int origine, char lettre, int fin, void* data 
 
 Automate *miroir( const Automate * automate){
 	Automate * res = creer_automate();
-	Ensemble_iterateur it1;
+	Ensemble_iterateur it_ens;
 	
 	// On ajoute les états initiaux depuis les finaux originaux
 	for(
-		it1 = premier_iterateur_ensemble( get_finaux( automate ) );
-		! iterateur_ensemble_est_vide( it1 );
-		it1 = iterateur_suivant_ensemble( it1 )
+		it_ens = premier_iterateur_ensemble( get_finaux( automate ) );
+		! iterateur_ensemble_est_vide( it_ens );
+		it_ens = iterateur_suivant_ensemble( it_ens )
 	){
-		ajouter_etat_initial( res, get_element( it1 ) );
+		ajouter_etat_initial( res, get_element( it_ens ) );
 	}
 	
 	// On ajoute les états finaux depuis les initiaux originaux
 	for(
-		it1 = premier_iterateur_ensemble( get_initiaux( automate ) );
-		! iterateur_ensemble_est_vide( it1 );
-		it1 = iterateur_suivant_ensemble( it1 )
+		it_ens = premier_iterateur_ensemble( get_initiaux( automate ) );
+		! iterateur_ensemble_est_vide( it_ens );
+		it_ens = iterateur_suivant_ensemble( it_ens )
 	){
-		ajouter_etat_final( res, get_element( it1 ) );
+		ajouter_etat_final( res, get_element( it_ens ) );
 	}
 	
 	// On ajoute les transitions inverses, ainsi que les états et les lettres
