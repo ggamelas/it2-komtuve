@@ -539,15 +539,17 @@ Automate * creer_union_des_automates(
 
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
 
-	if(! est_un_etat_de_l_automate(automate, etat) )//Si l'état n'existe pas
+	//Si l'état n'existe pas
+	if(! est_un_etat_de_l_automate(automate, etat) )
 		return NULL;
     
-	const Ensemble* alphabet = get_alphabet(automate);
 	Ensemble* res = creer_ensemble(NULL, NULL, NULL);
-	ajouter_element(res, etat);
+	const Ensemble* alphabet = get_alphabet(automate);
 	Ensemble_iterateur itRes;
 	Ensemble_iterateur itAlph;
-
+	
+	//Ajout des états empruntés par les chemins commençant à l'état donné
+	ajouter_element(res, etat);
 	itRes = premier_iterateur_ensemble( res );
 	while(! iterateur_ensemble_est_vide( itRes )){
 		for(itAlph = premier_iterateur_ensemble( alphabet );
@@ -570,6 +572,7 @@ Ensemble* accessibles( const Automate * automate ){
 	Ensemble* res = creer_ensemble( NULL, NULL, NULL );
 	Ensemble_iterateur it_ens;
 
+	//Ajout des états accessibles depuis chaque état initial
 	for(it_ens = premier_iterateur_ensemble( get_initiaux(automate) );
 		! iterateur_ensemble_est_vide( it_ens );
 		it_ens  = iterateur_suivant_ensemble( it_ens ))
