@@ -519,10 +519,8 @@ Automate * creer_union_des_automates(
 	
 	//Incorporation du second automate
 	Automate *a2= translater_automate(automate_2, automate_1); //Copie de automate_2
-	ajouter_elements(res->alphabet, a2->alphabet);
-	ajouter_elements(res->etats, a2->etats);
-	ajouter_elements(res->finaux, a2->finaux);
   	pour_toute_transition(a2, ajouter_transition_pour_toute, res);
+	ajouter_elements(res->finaux, a2->finaux);
 
 	//Création de l'unique état initial
 	ajouter_etat(res, INT_MIN);
@@ -678,6 +676,89 @@ Automate *miroir( const Automate * automate){
 Automate * creer_automate_du_melange(
 	const Automate* automate_1,  const Automate* automate_2
 ){
-	A_FAIRE_RETURN( NULL ); 
-}
+	Automate *res= creer_automate();
+	Ensemble *nouv_alphabet= creer_union_ensemble( get_alphabet(automate_1)
+													,get_alphabet(automate_2));
+	
+	typedef struct{
+		int q1;
+		int q2;
+	} couple_etat;
+	
+	int max=  taille_ensemble( get_etats(automate_1) )
+		 	* taille_ensemble( get_etats(automate_2) );
+	couple_etat etats[max];
+	
+	Ensemble_iterateur it_ens1, it_ens2, it_alpha, it_access;
+	
+	//Création des couples d'états
+	//Ajout de ces couples dans "res"
+	//Et ajout des états initiaux et finaux
+	int n= 0;
+	for(it_ens1 = premier_iterateur_ensemble( get_etats(automate_1) );
+		! iterateur_ensemble_est_vide( it_ens1 );
+		it_ens1 = iterateur_suivant_ensemble( it_ens1 ))
+	{
+		for(it_ens2 = premier_iterateur_ensemble( get_etats(automate_2) );
+			! iterateur_ensemble_est_vide( it_ens2 );
+			it_ens2 = iterateur_suivant_ensemble( it_ens2 ))
+		{
+			etats[n].q1= get_element(it_ens1);
+			etats[n].q2= get_element(it_ens2);
+			ajouter_etat(res, n);
+			if(est_un_etat_initial_de_l_automate(automate_1, get_element(it_ens1))
+			&& est_un_etat_initial_de_l_automate(automate_2, get_element(it_ens2)))
+				ajouter_etat_initial(res, n);
+			if(est_un_etat_final_de_l_automate(automate_1, get_element(it_ens1))
+			&& est_un_etat_final_de_l_automate(automate_2, get_element(it_ens2)))
+				ajouter_etat_final(res, n);
+			n++;
+		}
+	}
+	
+	//Ajout des transitions
+	int i, j;
+	for(i= 0; i<n; i++){
+		//Parcours de l'alphabet à la recherche de transitions partant d'etats[i]
+		for(it_alpha = premier_iterateur_ensemble( nouv_alphabet );
+			! iterateur_ensemble_est_vide( it_alpha );
+			it_alpha = iterateur_suivant_ensemble( it_alpha ))
+		{
+			//Récupération des états accessibles par la lettre dans les 2 automates
+			Ensemble *access_q1= delta1(automate_1, etats[i].q1, (char)get_element(it_alpha));
+			Ensemble *access_q2= delta1(automate_2, etats[i].q2, (char)get_element(it_alpha));
+			//Création des transitions pour automate_1
+			for(it_access = premier_iterateur_ensemble( access_q1 );
+				! iterateur_ensemble_est_vide( it_access );
+				it_access = iterateur_suivant_ensemble( it_access ))
+			{
+				//Recherche du couple (nouveauQ1, q2)
+				for(j= 0; j<n; j++){
+					if(etats[j].q1 == get_element(it_access)
+					&& etats[j].q2 == etats[i].q2){
+						ajouter_transition(res, i, get_element(it_alpha), j);
+						break;
+					}
+				}
+			}
+			//Création des transitions pour automate_2
+			for(it_access = premier_iterateur_ensemble( access_q2 );
+				! iterateur_ensemble_est_vide( it_access );
+				it_access = iterateur_suivant_ensemble( it_access ))
+			{
+				//Recherche du couple (q1, nouveauQ2)
+				for(j= 0; j<n; j++){
+					if(etats[j].q1 == etats[i].q1
+					&& etats[j].q2 == get_element(it_access)){
+						ajouter_transition(res, i, get_element(it_alpha), j);
+						break;
+					}
+				}
+			}
+			liberer_ensemble(access_q1);
+			liberer_ensemble(access_q2);
+		}
+	}
 
+	return res;
+}
