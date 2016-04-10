@@ -171,6 +171,12 @@ int test_automate_du_melange(){
 	       1
 	       && mela
 	       && ! le_mot_est_reconnu( mela, "" )
+	       && le_mot_est_reconnu( mela, "a" )
+	       && ! le_mot_est_reconnu( mela, "b" )
+	       && le_mot_est_reconnu( mela, "aa" )
+	       && le_mot_est_reconnu( mela, "ab" )
+	       && le_mot_est_reconnu( mela, "ba" )
+	       && ! le_mot_est_reconnu( mela, "bb" )
 	       && le_mot_est_reconnu( mela, "aabc" )
 	       && le_mot_est_reconnu( mela, "bcca" )
 	       && le_mot_est_reconnu( mela, "bccccccaba" )
