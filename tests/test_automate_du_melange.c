@@ -134,6 +134,59 @@ int test_automate_du_melange(){
 		wrap_liberer_automate( mela );
 	}
 
+
+	
+	{
+
+	  //Test melange  automates non déterministe, non complet, plusieurs etats initiaux et finaux
+	  Automate *a1 = creer_automate();
+	  
+	  ajouter_transition( a1, 0, 'a', 1 );
+	  ajouter_transition( a1, 0, 'a', 2 );
+	  ajouter_transition( a1, 1, 'b', 0 );
+	  ajouter_transition( a1, 2, 'b', 1 );
+	  
+	  ajouter_etat_initial( a1, 0 );
+	  ajouter_etat_initial( a1, 2 );
+	  ajouter_etat_final( a1, 0 );
+	  ajouter_etat_final( a1, 1 );
+	  
+
+
+	  Automate *a2 = creer_automate();
+	  
+	  ajouter_transition( a2, 0, 'a', 1 );
+	  ajouter_transition( a2, 1, 'a', 3 );
+	  ajouter_transition( a2, 2, 'c', 1 );
+	  ajouter_transition( a2, 3, 'b', 2 );
+	  ajouter_transition( a2, 3, 'b', 0 );
+	  ajouter_transition( a2, 2, 'c', 2 );
+	  ajouter_etat_initial( a2, 0 );
+	  ajouter_etat_initial( a2, 3 );
+	  ajouter_etat_final( a2, 1 );
+
+	  Automate * mela = creer_automate_du_melange( a1, a2 );
+	  
+	  TEST(
+	       1
+	       && mela
+	       && ! le_mot_est_reconnu( mela, "" )
+	       && le_mot_est_reconnu( mela, "aabc" )
+	       && le_mot_est_reconnu( mela, "bcca" )
+	       && le_mot_est_reconnu( mela, "bccccccaba" )
+	       && ! le_mot_est_reconnu( mela, "cacbba" )
+	       &&  le_mot_est_reconnu( mela, "bcabcabab" )
+	       , result
+	       );
+	  
+	  wrap_liberer_automate( a1 );
+	  wrap_liberer_automate( a2 );
+	  wrap_liberer_automate( mela );
+	
+	}
+
+
+	
 	return result;
 }
 

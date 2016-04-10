@@ -219,13 +219,73 @@ int test_automate_du_union(){
 		wrap_liberer_automate( unio );
 	}
 
+	{
+
+	  //Test union  automates non déterministe, non complet, plusieurs etats initiaux et finaux
+	  Automate *a1 = creer_automate();
+	  
+	  ajouter_transition( a1, 0, 'a', 2 );
+	  ajouter_transition( a1, 1, 'a', 0 );
+	  ajouter_transition( a1, 1, 'b', 2 );
+	  ajouter_transition( a1, 1, 'b', 4 );
+	  ajouter_transition( a1, 2, 'a', 5 );
+	  ajouter_transition( a1, 3, 'a', 4 );
+	  ajouter_transition( a1, 4, 'a', 3 );
+	  ajouter_transition( a1, 5, 'b', 4 );
+	  ajouter_transition( a1, 5, 'b', 3 );
+	  ajouter_etat_initial( a1, 0 );
+	  ajouter_etat_initial( a1, 1 );
+	  ajouter_etat_final( a1, 3 );
+	  ajouter_etat_final( a1, 4 );
+	  
+
+
+	  Automate *a2 = creer_automate();
+	  
+	  ajouter_transition( a2, 0, 'b', 2 );
+	  ajouter_transition( a2, 1, 'a', 6 );
+	  ajouter_transition( a2, 2, 'a', 5 );
+	  ajouter_transition( a2, 2, 'a', 3 );
+	  ajouter_transition( a2, 3, 'a', 3 );
+	  ajouter_transition( a2, 3, 'b', 2 );
+	  ajouter_transition( a2, 6, 'b', 3 );
+	  ajouter_transition( a2, 6, 'b', 6 );
+	  ajouter_etat_initial( a2, 0 );
+	  ajouter_etat_initial( a2, 1 );
+	  ajouter_etat_final( a2, 5 );
+
+	  Automate * unio = creer_union_des_automates( a1, a2 );
+	  
+	  TEST(
+	       1
+	       && unio
+	       && ! le_mot_est_reconnu( unio, "" )
+	       && le_mot_est_reconnu( unio, "abba" )
+	       && le_mot_est_reconnu( unio, "baaaba" )
+	       
+	       && ! le_mot_est_reconnu( unio, "a" )
+	       &&  le_mot_est_reconnu( unio, "b" )
+	       
+	       && le_mot_est_reconnu( unio, "aab" ) //reconu par a1 mais pas par a2
+	       , result
+	       );
+	  
+	  wrap_liberer_automate( a1 );
+	  wrap_liberer_automate( a2 );
+	  wrap_liberer_automate( unio );
+	
+	
+	
+	
+	}
+
 	return result;
 }
 
 
 int main(){
-
-	if( ! test_automate_du_union() ){ return 1; }
-
-	return 0;
+  
+  if( ! test_automate_du_union() ){ return 1; }
+  
+  return 0;
 }
